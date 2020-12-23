@@ -22,6 +22,7 @@ PACKAGES=(
   curl
   git
   hub
+  spectacle
   asdf
 )
 
@@ -94,7 +95,7 @@ asdf plugin-add erlang https://github.com/asdf-vm/asdf-erlang.git
 # Install asdf versions for plugings
 VERSIONS=(
   ruby
-  node-js
+  nodejs
   yarn
   erlang
   elixir
