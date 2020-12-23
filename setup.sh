@@ -22,7 +22,6 @@ PACKAGES=(
   curl
   git
   hub
-  spectacle
   asdf
 )
 
@@ -114,10 +113,11 @@ CASKS=(
     google-chrome
     git-fork
     sublime-text
+    rectangle
     docker
 )
 
-brew cask install ${CASKS[@]}
+brew install --cask ${CASKS[@]}
 
 brew cleanup
 
