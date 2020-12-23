@@ -21,6 +21,7 @@ PACKAGES=(
   gpg
   curl
   git
+  hub
   asdf
 )
 
@@ -46,7 +47,7 @@ ssh-keygen -t rsa -b 4096 -C $email
 
 eval "$(ssh-agent -s)"
 
-# touch ~/.ssh/config
+touch ~/.ssh/config
 
 cat <<'EOF' > ~/.ssh/config
 Host *
