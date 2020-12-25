@@ -2,14 +2,15 @@
 # Setup script for setting up a new macos machine
 
 echo "Starting setup"
-
+echo "Installing Xcode developer tools"
 # install Xcode CLI
 xcode-select --install
+
 
 # Check for Homebrew to be present, install if it's missing
 if test ! $(which brew); then
     echo "Installing homebrew..."
-    ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 fi
 
 # Update homebrew recipes
@@ -28,13 +29,14 @@ PACKAGES=(
 echo "Installing packages..."
 brew install ${PACKAGES[@]}
 
+
+echo "Installing oh-my-zsh..."
 # Install oh-my-zsh
 sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 source ~/.zshrc
 chsh -s /usr/local/bin/zsh
 
 echo -e "\n. $(brew --prefix asdf)/asdf.sh" >> ~/.zshrc
-exec zsh
 
 echo "################################ SETUP SSH KEY #################################"
 if [ ! -f ~/.ssh/id_rsa ]; then
@@ -63,12 +65,13 @@ fi
 echo "################################################################################"
 
 # Make default directory for projects
-cd ~/Desktop/
-mkdir code
+#cd ~/Desktop/
+#mkdir code
 # Clone dot files
 # TODO: Uncomment when dotfiles are updated for asdf
 #git clone git@github.com:mikeyduece/dot_files.git
 
+echo "Create default gems file for asdf..."
 # Create file for asdf to install default gems
 FILE=~/.default-gems
 touch $FILE
@@ -79,29 +82,26 @@ rails
 docker-sync
 EOF
 
+echo "Installing asdf plugins..."
 # Install asdf plugins
 # Ruby
+echo "Installing Ruby plugin..."
 asdf plugin-add ruby https://github.com/asdf-vm/asdf-ruby.git
 # Node
+echo "Installing Nodejs plugin..."
 asdf plugin-add nodejs https://github.com/asdf-vm/asdf-nodejs.git
 # Import the Node.js release team's OpenPGP keys to main keyring:
 bash -c '${ASDF_DATA_DIR:=$HOME/.asdf}/plugins/nodejs/bin/import-release-team-keyring'
 # Yarn
-asdf plugin add yarn
+echo "Installing Yarn plugin..."
+asdf plugin-add yarn
 # Erlang
-asdf plugin-add erlang https://github.com/asdf-vm/asdf-erlang.git
-
-# Install asdf versions for plugings
-VERSIONS=(
-  ruby
-  nodejs
-  yarn
-  erlang
-  elixir
-)
+echo "Installing Erlang plugin..."
 export KERL_CONFIGURE_OPTIONS="--disable-debug --without-javac"
-asdf install ${VERSIONS[@]} latest
-asdf global ${VERSIONS[@]} latest
+asdf plugin-add erlang https://github.com/asdf-vm/asdf-erlang.git
+# Elixir
+echo "Installing Elixir plugin..."
+asdf plugin-add elixir https://github.com/asdf-vm/asdf-elixir.git
 
 echo 'Installing apps...'
 
@@ -110,8 +110,8 @@ CASKS=(
     slack
     spotify
     rubymine
+    fork
     google-chrome
-    git-fork
     sublime-text
     rectangle
     docker
