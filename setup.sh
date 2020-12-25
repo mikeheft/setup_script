@@ -36,7 +36,7 @@ sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.
 source ~/.zshrc
 chsh -s /usr/local/bin/zsh
 
-echo -e "\n. $(brew --prefix asdf)/asdf.sh" >> ~/.zshrc
+echo "\n. $(brew --prefix asdf)/asdf.sh" >> ~/.zshrc
 
 echo "################################ SETUP SSH KEY #################################"
 if [ ! -f ~/.ssh/id_rsa ]; then
