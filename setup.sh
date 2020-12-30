@@ -121,11 +121,14 @@ brew install --cask ${CASKS[@]}
 
 brew cleanup
 
+echo "Changing system defaults..."
 #"Setting the icon size of Dock items to 36 pixels for optimal size/screen-realestate"
 defaults write com.apple.dock tilesize -int 36
 #"Setting Dock to auto-hide and removing the auto-hiding delay"
 defaults write com.apple.dock autohide -bool true
 defaults write com.apple.dock autohide-delay -float 0
 defaults write com.apple.dock autohide-time-modifier -float 0
+defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool true
 #"Setting screenshots location to ~/Desktop"
 defaults write com.apple.screencapture location -string "$HOME/Desktop"
+echo "Done. Note that some of these changes require a logout/restart to take effect."
