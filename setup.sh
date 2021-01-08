@@ -80,6 +80,7 @@ cat > $FILE << 'EOF'
 bundler
 rails
 docker-sync
+gem-release
 EOF
 
 echo "Installing asdf plugins..."
