@@ -23,7 +23,6 @@ PACKAGES=(
   curl
   git
   hub
-  asdf
 )
 
 echo "Installing packages..."
@@ -36,7 +35,8 @@ sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.
 source ~/.zshrc
 chsh -s /usr/local/bin/zsh
 
-echo "\n. $(brew --prefix asdf)/asdf.sh" >> ~/.zshrc
+echo "Cloning ASDF"
+git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.8.1
 
 echo "################################ SETUP SSH KEY #################################"
 if [ ! -f ~/.ssh/id_rsa ]; then
@@ -65,11 +65,11 @@ fi
 echo "################################################################################"
 
 # Make default directory for projects
-#cd ~/Desktop/
-#mkdir code
+cd ~/Desktop/
+mkdir code
 # Clone dot files
 # TODO: Uncomment when dotfiles are updated for asdf
-#git clone git@github.com:mikeyduece/dot_files.git
+git clone git@github.com:mikeyduece/dot_files.git
 
 echo "Create default gems file for asdf..."
 # Create file for asdf to install default gems
@@ -110,7 +110,6 @@ CASKS=(
     iterm2
     slack
     spotify
-    rubymine
     fork
     google-chrome
     sublime-text
