@@ -23,11 +23,13 @@ PACKAGES=(
   git
   hub
   fzf
+  heroku
+  awescli
+  jq
 )
 
 echo "Installing packages..."
 brew install ${PACKAGES[@]}
-
 
 echo "Installing oh-my-zsh..."
 # Install oh-my-zsh
@@ -37,6 +39,14 @@ chsh -s /usr/local/bin/zsh
 
 echo "Cloning ASDF"
 git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.8.1
+cat<<EOF > ~/.zshrc
+# append completions to fpath
+fpath=(${ASDF_DIR}/completions $fpath)
+# initialise completions with ZSH's compinit
+autoload -Uz compinit && compinit
+EOF
+
+echo ". $HOME/.asdf/asdf.sh" >> ~/.zshrc
 
 echo "################################ SETUP SSH KEY #################################"
 if [ ! -f ~/.ssh/id_rsa ]; then
@@ -105,6 +115,8 @@ asdf plugin-add erlang https://github.com/asdf-vm/asdf-erlang.git
 # Elixir
 echo "Installing Elixir plugin..."
 asdf plugin-add elixir https://github.com/asdf-vm/asdf-elixir.git
+echo "Installing Java plugin..."
+asdf plugin-add java https://github.com/halcyon/asdf-java.git
 
 echo "Done installing asdf plugins, don't forget to add the versions you need
 via asdf install plugin name <version>...."
