@@ -23,7 +23,6 @@ PACKAGES=(
   git
   hub
   fzf
-  heroku
   awescli
   jq
 )
@@ -31,11 +30,24 @@ PACKAGES=(
 echo "Installing packages..."
 brew install ${PACKAGES[@]}
 
+echo "Installing Heroku..."
+brew tap heroku/brew && brew install heroku
+
 echo "Installing oh-my-zsh..."
 # Install oh-my-zsh
 sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 source ~/.zshrc
 chsh -s /usr/local/bin/zsh
+
+# Make default directory for projects
+cd ~/Desktop/
+mkdir code
+# Clone dot files
+git clone git@github.com:mikeyduece/setup_script.git ~/code/setup_script
+echo "Copying vimrc file to ~/.vimrc"
+cp ~/code/setup_script/vimrc.txt ~/.vimrc
+echo "Copying zshrc file to ~/.zshrc"
+cp ~/code/setup_script/zshrc.text ~/.zshrc
 
 echo "Cloning ASDF"
 git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.8.1
@@ -74,14 +86,6 @@ else echo "File at ~/.ssh/id_rsa already exists, skipping SSH key setup"
 fi
 echo "################################################################################"
 
-# Make default directory for projects
-cd ~/Desktop/
-mkdir code
-# Clone dot files
-# TODO: Uncomment when dotfiles are updated for asdf
-git clone git@github.com:mikeyduece/dot_files.git
-echo "Copying vimrc file to ~/.vimrc"
-cp dot_files/vimrc.txt ~/.vimrc
 
 echo "Create default gems file for asdf..."
 # Create file for asdf to install default gems
