@@ -1,0 +1,226 @@
+if &compatible
+  set nocompatible
+end
+
+" Remove declared plugins
+function! s:UnPlug(plug_name)
+  if has_key(g:plugs, a:plug_name)
+    call remove(g:plugs, a:plug_name)
+  endif
+endfunction
+command!  -nargs=1 UnPlug call s:UnPlug(<args>)
+
+let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.6, 'relative': v:true, 'yoffset': 1.0 } }
+let g:has_async = v:version >= 800 || has('nvim')
+
+let data_dir = has('nvim') ? stdpath('data') . '/site' : '~/.vim'
+" Install vim-plug if not found
+if empty(glob('~/.vim/autoload/plug.vim'))
+  silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
+    \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+endif
+
+" Run PlugInstall if there are missing plugins
+autocmd VimEnter * if len(filter(values(g:plugs), '!isdirectory(v:val.dir)'))
+  \| PlugInstall --sync | source $MYVIMRC
+\| endif
+
+
+
+
+
+call plug#begin()
+
+" Define bundles via Github repos
+Plug 'ervandew/supertab'
+Plug 'elixir-lang/vim-elixir'
+Plug 'kchmck/vim-coffee-script'
+Plug 'pangloss/vim-javascript'
+Plug 'pbrisbin/vim-mkdir'
+Plug 'slim-template/vim-slim'
+Plug 'tpope/vim-endwise'
+Plug 'tpope/vim-repeat'
+Plug 'tpope/vim-surround'
+Plug 'tpope/vim-rhubarb'
+Plug 'jeetsukumaran/vim-buffergator'
+Plug 'vim-scripts/tComment'
+Plug 'https://github.com/vim-python/python-syntax'
+Plug 'https://github.com/plasticboy/vim-markdown'
+Plug 'mattn/emmet-vim'
+Plug '~/.fzf'
+Plug 'mhinz/vim-startify'
+Plug 'itchyny/lightline.vim'
+Plug 'https://github.com/vim-ruby/vim-ruby'
+Plug 'https://github.com/tpope/vim-rails'
+Plug 'mileszs/ack.vim'
+Plug 'itchyny/vim-gitbranch'
+" Plug 'https://github.com/rhysd/vim-crystal'
+" Plug 'https://github.com/ElmCast/elm-vim'
+" Plug 'https://github.com/neovimhaskell/haskell-vim'
+" Plug 'https://github.com/cespare/vim-toml'
+" Plug 'terryma/vim-multiple-cursors'
+
+if g:has_async
+  Plug 'w0rp/ale'
+endif
+
+call plug#end()
+
+set laststatus=2
+set rtp+=~/.fzf
+set tabstop=2
+set shiftwidth=2
+set expandtab
+set autoindent
+set incsearch
+set scrolloff=1
+set ruler
+set wildmenu
+set splitbelow
+set splitright
+set number
+set numberwidth=5
+set virtualedit=all
+set noswapfile
+
+set textwidth=121
+set colorcolumn=+1
+hi ColorColumn ctermbg=Grey guibg=Grey40
+" Startify
+let g:startify_change_to_dir = 0
+let g:startify_bookmarks = [
+      \ { 'd': '~/dev/dotfiles' },
+      \ { 'r': '~/dev/dotfiles/vimrc' },
+      \ { 'p': '~/dev/dotfiles/zshrc' },
+      \ { 'f': '~/dev/dotfiles/zsh_functions' },
+      \ { 'n': '~/.notes.md' },
+      \ ]
+
+" Ale config
+let g:ale_set_highlights = 0
+let g:ale_ruby_rubocop_executable = 'bundle'
+let g:ale_pattern_options_enabled = 1
+ 
+let g:ale_pattern_options = {
+  \ 'pay-server/.*\.rb$': { 'ale_ruby_rubocop_executable': 'scripts/bin/rubocop-daemon/rubocop' },
+\}
+
+" lightline config
+function! LightlineFilename()
+  return expand('%')
+endfunction
+
+let g:lightline = {
+      \ 'colorscheme': 'wombat',
+      \ 'active': {
+      \   'left': [ [ 'mode', 'paste' ],
+      \             [ 'gitbranch', 'readonly', 'filename', 'modified' ] ]
+      \ },
+      \ 'component_function': {
+      \   'gitbranch': 'gitbranch#name',
+      \   'filename': 'LightlineFilename',
+      \ },
+      \ }
+
+
+let NERDTreeShowHidden=1
+syntax on
+set list listchars=tab:»·,trail:·,nbsp:·
+set list
+set backspace=2
+set cursorline
+hi CursorLine term=bold cterm=bold guibg=Grey40
+set title
+au BufNewFile,BufRead *.prawn set filetype=ruby
+au BufNewFile,BufRead .env.* set filetype=zsh
+au BufNewFile,BufRead Jenkinsfile set filetype=groovy
+au BufNewFile,BufRead *.ecr set filetype=html
+nmap <F2> :Explore<CR>
+nmap <F3> :%s/\s\+$//e<CR>
+nmap <C-p> :FZF<CR>
+nmap <C-h> <C-w>h
+nmap <C-j> <C-w>j
+nmap <C-k> <C-w>k
+nmap <C-l> <C-w>l
+nmap <F10> :setlocal spell spelllang=en_us<CR>
+vnoremap <C-j> :m '>+1<CR>gv=gv
+vnoremap <C-k> :m '<-2<CR>gv=gv
+
+
+" The Silver Searcher
+if executable('ag')
+  " Use ag over grep
+  set grepprg=ag\ --nogroup\ --nocolor
+
+  " Use ag in CtrlP for listing files. Lightning fast and respects .gitignore
+  let g:ctrlp_user_command = 'ag %s -l --nocolor -g ""'
+
+  " ag is fast enough that CtrlP doesn't need to cache
+  let g:ctrlp_use_caching = 0
+endif
+
+fu! Search(string)
+  :grep! string<CR> :cw<CR>
+endfunction
+
+if executable('rg')
+  let g:ackprg = 'rg --vimgrep --no-heading'
+elseif executable('ag')
+  let g:ackprg = 'ag --vimgrep'
+endif
+
+cnoreabbrev Ack Ack!
+
+" disable all folding in MD
+let g:vim_markdown_folding_disabled = 1
+
+" Leader
+let mapleader = " "
+set runtimepath^=~/.vim runtimepath+=~/.vim/after
+let &packpath = &runtimepath
+" Switch between the last two files
+nnoremap <Leader><Leader> <C-^>
+map <Leader>tt :10split term://zsh<CR>
+map <Leader>rf :split term:// pay test %<CR>
+map <Leader>lrf :split term:// pay ssh 'source bin/devbox_env && bundle exec rspec %'<CR>
+" map <Leader>rf :split term:// SKIP_FIXTURES='true' bundle exec rspec %<CR> " specs
+" map <Leader>rl :execute "split term:// SKIP_FIXTURES='true' bundle exec rspec %:" . ( line(".") )<CR>
+map <Leader>fs O# frozen_string_literal: true<CR>typed: strict<ESC>
+map <Leader>mi :!bin/rails db:migrate RAILS_ENV=test<CR>
+map <Leader>gh :!git blame %<CR>
+map <Leader>ry orequire 'pry'; binding.pry<ESC>
+map <Leader>put Oputs "\n\n\n\n\n\n\n\n\n\n\n\n\n"<ESC>
+map <Leader>ee :Explore<ESC>
+map <Leader>nn :set nonumber<CR>
+map <Leader>yn :set number<CR>
+map <Leader>ta :ALEToggle<CR>
+" Tabs
+map <Leader>tn :tabn<CR>
+map <Leader>tp :tabp<CR>
+map <Leader>te :tabedit<CR>
+noremap <Leader>1 1gt
+noremap <Leader>2 2gt
+noremap <Leader>3 3gt
+noremap <Leader>4 4gt
+noremap <Leader>5 5gt
+noremap <Leader>6 6gt
+noremap <Leader>7 7gt
+noremap <Leader>8 8gt
+noremap <Leader>9 9gt
+noremap <leader>0 :tablast<cr>
+" Tabs end
+nnoremap <Leader>a :Ack!<Space>
+nnoremap <Leader>A :Ack!<CR>
+
+" copy to clipboard
+map <Leader>yy "+y
+" paste from clipboard
+map <Leader>pp "*p
+
+" To use `ALT+{h,j,k,l}` to navigate windows from any mode:
+tnoremap <C-h> <C-\><C-N><C-w>h
+tnoremap <C-j> <C-\><C-N><C-w>j
+tnoremap <C-k> <C-\><C-N><C-w>k
+tnoremap <C-l> <C-\><C-N><C-w>l
+
+map <Leader>/ <Leader>gcc

@@ -17,12 +17,12 @@ fi
 brew update
 
 PACKAGES=(
-  postgres
   coreutils
   gpg
   curl
   git
   hub
+  fzf
 )
 
 echo "Installing packages..."
@@ -70,6 +70,8 @@ mkdir code
 # Clone dot files
 # TODO: Uncomment when dotfiles are updated for asdf
 git clone git@github.com:mikeyduece/dot_files.git
+echo "Copying vimrc file to ~/.vimrc"
+cp dot_files/vimrc.txt ~/.vimrc
 
 echo "Create default gems file for asdf..."
 # Create file for asdf to install default gems
@@ -104,6 +106,9 @@ asdf plugin-add erlang https://github.com/asdf-vm/asdf-erlang.git
 echo "Installing Elixir plugin..."
 asdf plugin-add elixir https://github.com/asdf-vm/asdf-elixir.git
 
+echo "Done installing asdf plugins, don't forget to add the versions you need
+via asdf install plugin name <version>...."
+
 echo 'Installing apps...'
 
 CASKS=(
@@ -132,3 +137,4 @@ defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool
 #"Setting screenshots location to ~/Desktop"
 defaults write com.apple.screencapture location -string "$HOME/Desktop"
 echo "Done. Note that some of these changes require a logout/restart to take effect."
+echo "Don'forget to install Postgres.app"
