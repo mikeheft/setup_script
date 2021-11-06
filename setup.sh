@@ -33,6 +33,9 @@ brew install ${PACKAGES[@]}
 echo "Installing Heroku..."
 brew tap heroku/brew && brew install heroku
 
+echo "Log in to Heroku..."
+heroku login -i
+
 echo "Installing oh-my-zsh..."
 # Install oh-my-zsh
 sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
@@ -40,10 +43,9 @@ source ~/.zshrc
 chsh -s /usr/local/bin/zsh
 
 # Make default directory for projects
-cd ~/Desktop/
-mkdir code
+mkdir ~/Desktop/code
 # Clone dot files
-git clone git@github.com:mikeyduece/setup_script.git ~/code/setup_script
+git clone git@github.com:mikeyduece/setup_script.git ~/Desktop/code/setup_script
 echo "Copying vimrc file to ~/.vimrc"
 cp ~/code/setup_script/vimrc.txt ~/.vimrc
 echo "Copying zshrc file to ~/.zshrc"
@@ -51,7 +53,7 @@ cp ~/code/setup_script/zshrc.text ~/.zshrc
 
 echo "Cloning ASDF"
 git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.8.1
-cat<<EOF > ~/.zshrc
+cat <<'EOF' > ~/.zshrc
 # append completions to fpath
 fpath=(${ASDF_DIR}/completions $fpath)
 # initialise completions with ZSH's compinit
