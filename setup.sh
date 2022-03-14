@@ -25,6 +25,8 @@ PACKAGES=(
   fzf
   awescli
   jq
+  maven
+  gradle
 )
 
 echo "Installing packages..."
