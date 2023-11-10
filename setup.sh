@@ -32,12 +32,6 @@ PACKAGES=(
 echo "Installing packages..."
 brew install ${PACKAGES[@]}
 
-echo "Installing Heroku..."
-brew tap heroku/brew && brew install heroku
-
-echo "Log in to Heroku..."
-heroku login -i
-
 echo "Installing oh-my-zsh..."
 # Install oh-my-zsh
 sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
@@ -48,13 +42,11 @@ chsh -s /usr/local/bin/zsh
 mkdir ~/Desktop/code
 # Clone dot files
 git clone git@github.com:mikeyduece/setup_script.git ~/Desktop/code/setup_script
-echo "Copying vimrc file to ~/.vimrc"
-cp ~/code/setup_script/vimrc.txt ~/.vimrc
 echo "Copying zshrc file to ~/.zshrc"
 cp ~/code/setup_script/zshrc.text ~/.zshrc
 
 echo "Cloning ASDF"
-git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.8.1
+git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.13.1
 cat <<'EOF' > ~/.zshrc
 # append completions to fpath
 fpath=(${ASDF_DIR}/completions $fpath)
@@ -103,14 +95,23 @@ docker-sync
 gem-release
 EOF
 
+# TODO: Add default gems if/when working more with node
+# FILE=~/.default-npm-packages
+# touch $FILE
+# cat > $FILE <<'EOF'
+# EOF
+
+echo "Create default packages for asdf-nodejs..."
+# Create file for asdf to install default packages
+
 echo "Installing asdf plugins..."
 # Install asdf plugins
 # Ruby
 echo "Installing Ruby plugin..."
-asdf plugin-add ruby https://github.com/asdf-vm/asdf-ruby.git
+asdf plugin add ruby https://github.com/asdf-vm/asdf-ruby.git
 # Node
 echo "Installing Nodejs plugin..."
-asdf plugin-add nodejs https://github.com/asdf-vm/asdf-nodejs.git
+asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git
 # Import the Node.js release team's OpenPGP keys to main keyring:
 bash -c '${ASDF_DATA_DIR:=$HOME/.asdf}/plugins/nodejs/bin/import-release-team-keyring'
 # Yarn
@@ -119,12 +120,36 @@ asdf plugin-add yarn
 # Erlang
 echo "Installing Erlang plugin..."
 export KERL_CONFIGURE_OPTIONS="--disable-debug --without-javac"
-asdf plugin-add erlang https://github.com/asdf-vm/asdf-erlang.git
+asdf plugin add erlang https://github.com/asdf-vm/asdf-erlang.git
 # Elixir
 echo "Installing Elixir plugin..."
 asdf plugin-add elixir https://github.com/asdf-vm/asdf-elixir.git
+# Java
 echo "Installing Java plugin..."
 asdf plugin-add java https://github.com/halcyon/asdf-java.git
+# Maven
+echo "Installing Maven plugin..."
+asdf plugin-add maven
+# Gradle
+echo "Intalling Gradel plugin..."
+asdf plugin-add gradle https://github.com/rfrancis/asdf-gradle.git
+# echo "Installing AWS CLI plugin..."
+# asdf plugin add https://github.com/MetricMike/asdf-awscli.git
+# echo "Installing Elasticsearch..."
+# asdf plugin-add elasticsearch https://github.com/asdf-community/asdf-elasticsearch.git
+# Terraform
+# asdf plugin-add boundary https://github.com/asdf-community/asdf-hashicorp.git
+# asdf plugin-add consul https://github.com/asdf-community/asdf-hashicorp.git
+# asdf plugin-add levant https://github.com/asdf-community/asdf-hashicorp.git
+# asdf plugin-add nomad https://github.com/asdf-community/asdf-hashicorp.git
+# asdf plugin-add packer https://github.com/asdf-community/asdf-hashicorp.git
+# asdf plugin-add sentinel https://github.com/asdf-community/asdf-hashicorp.git
+# asdf plugin-add serf https://github.com/asdf-community/asdf-hashicorp.git
+# asdf plugin-add terraform https://github.com/asdf-community/asdf-hashicorp.git
+# asdf plugin-add terraform-ls https://github.com/asdf-community/asdf-hashicorp.git
+# asdf plugin-add tfc-agent https://github.com/asdf-community/asdf-hashicorp.git
+# asdf plugin-add vault https://github.com/asdf-community/asdf-hashicorp.git
+# asdf plugin-add waypoint https://github.com/asdf-community/asdf-hashicorp.git
 
 echo "Done installing asdf plugins, don't forget to add the versions you need
 via asdf install plugin name <version>...."
@@ -134,12 +159,12 @@ echo 'Installing apps...'
 CASKS=(
     iterm2
     slack
-    spotify
     fork
     google-chrome
     sublime-text
     rectangle
     docker
+    firefox
 )
 
 brew install --cask ${CASKS[@]}
