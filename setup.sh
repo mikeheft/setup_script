@@ -13,7 +13,20 @@ else
     brew update
 fi
 
-# 3. Apps and casks to install via Homebrew
+# 3.1. Taps adds more repositories to the list of formulae that Homebrew tracks, updates, and installs from
+taps=(
+  hashicorp/tap
+)
+
+echo "Installing apps..."
+for tap in "${taps[@]}"; do
+    echo "Installing $tap..."
+    brew install "$tap"
+done
+
+
+
+# 3.2. Apps and casks to install via Homebrew
 apps=(
   git
   zsh
