@@ -81,11 +81,10 @@ echo "Done. Your new SSH public key is:"
 cat ~/.ssh/id_ed25519.pub
 
 # 5. Add SSH key to GitHub
-read -p "Enter your GitHub username: " github_user
 read -p "Enter your GitHub password or Personal Access Token: " -s github_pass
 echo -e "\n"
 ssh_key=$(cat ~/.ssh/id_ed25519.pub | awk '{print $2}')
-key_exists=$(curl -u "$github_user:$githib_pass" https://api.github.com/user/keys | jq '.message')
+key_exists=$(curl -u "$EMAIL:$githib_pass" https://api.github.com/user/keys | jq '.message')
 if [ "$key_exists" = "Not Found" ]; then
     curl -u "$github_user:$github_pass" https://api.github.com/user/keys -d "{\"title\": \"`hostname`\", \"key\": \"$ssh_key\"}"
 else
