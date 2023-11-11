@@ -20,8 +20,8 @@ taps=(
 
 echo "Installing apps..."
 for tap in "${taps[@]}"; do
-    echo "Installing $tap..."
-    brew install "$tap"
+    echo "Tapping $tap..."
+    brew tap "$tap"
 done
 
 
