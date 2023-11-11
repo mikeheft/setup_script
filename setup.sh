@@ -1,185 +1,126 @@
 #!/bin/bash
-# Setup script for setting up a new macos machine
-
-echo "Starting setup"
-echo "Installing Xcode developer tools"
-# install Xcode CLI
+EMAIL="mikeheft@gmail.com"
+# 1. Install Xcode Command Line Tools
+echo "Installing Xcode Command Line Tools..."
 xcode-select --install
 
-
-# Check for Homebrew to be present, install if it's missing
+# 2. Check if Homebrew is installed and install it if it is not
 if test ! $(which brew); then
-    echo "Installing homebrew..."
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    echo "Installing Homebrew..."
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+else
+    echo "Updating Homebrew..."
+    brew update
 fi
 
-# Update homebrew recipes
-brew update
-
-PACKAGES=(
-  coreutils
-  gpg
-  curl
+# 3. Apps and casks to install via Homebrew
+apps=(
   git
-  hub
-  fzf
-  awescli
-  jq
-  maven
-  gradle
+  zsh
+  coreutils
+  automake
+  autoconf
+  openssl
+  libyaml
+  readline
+  libxslt
+  libtool
+  unixodbc
+  wxmac
+  gnu-sed
+  gpg
+  kubectl
+  terraform
+  awscli
+  ansible
+  jenkins
+  helm
+  minikube
+  docker-compose
 )
 
-echo "Installing packages..."
-brew install ${PACKAGES[@]}
+casks=(
+  google-chrome
+  docker
+  visual-studio-code
+  intellij-idea-ce
+  grafana
+  firefox
+)
 
-echo "Installing oh-my-zsh..."
-# Install oh-my-zsh
-sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-source ~/.zshrc
-chsh -s /usr/local/bin/zsh
+echo "Installing apps..."
+for app in "${apps[@]}"; do
+    echo "Installing $app..."
+    brew install "$app"
+done
 
-# Make default directory for projects
-mkdir ~/Desktop/code
-# Clone dot files
-git clone git@github.com:mikeyduece/setup_script.git ~/Desktop/code/setup_script
-echo "Copying zshrc file to ~/.zshrc"
-cp ~/code/setup_script/zshrc.text ~/.zshrc
+echo "Installing cask apps..."
+for cask in "${casks[@]}"; do
+    echo "Installing $cask..."
+    brew install --cask "$cask"
+done
 
-echo "Cloning ASDF"
-git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.13.1
-cat <<'EOF' > ~/.zshrc
-# append completions to fpath
-fpath=(${ASDF_DIR}/completions $fpath)
-# initialise completions with ZSH's compinit
-autoload -Uz compinit && compinit
-EOF
-
-echo ". $HOME/.asdf/asdf.sh" >> ~/.zshrc
-
-echo "################################ SETUP SSH KEY #################################"
-if [ ! -f ~/.ssh/id_rsa ]; then
-echo "Please enter your github email address:"
-
-echo "Please enter your github email address:"
-read email
-
-ssh-keygen -t rsa -b 4096 -C $email
-
-eval "$(ssh-agent -s)"
-
-touch ~/.ssh/config
-
-cat <<'EOF' > ~/.ssh/config
-Host *
-  AddKeysToAgent yes
-  UseKeychain yes
-  IdentityFile ~/.ssh/id_rsa
-EOF
-
-ssh-add -K ~/.ssh/id_rsa
-
-else echo "File at ~/.ssh/id_rsa already exists, skipping SSH key setup"
+# 4. Setup SSH Key
+if [ ! -f ~/.ssh/id_ed25519 ]; then
+    echo "Setting up SSH Key..."
+    ssh-keygen -t ed25519 -C $EMAIL
+    eval "$(ssh-agent -s)"
+    if [ -f ~/.zshrc ]; then
+        echo "Host *\n  AddKeysToAgent yes\n  UseKeychain yes\n  IdentityFile ~/.ssh/id_ed25519" >> ~/.zshrc
+    elif [ -f ~/.bashrc ]; then
+        echo "Host *\n  AddKeysToAgent yes\n  UseKeychain yes\n  IdentityFile ~/.ssh/id_ed25519" >> ~/.bashrc
+    elif [ -f ~/.bash_profile ]; then
+        echo "Host *\n  AddKeysToAgent yes\n  UseKeychain yes\n  IdentityFile ~/.ssh/id_ed25519" >> ~/.bash_profile
+    fi
+    ssh-add -K ~/.ssh/id_ed25519
+else
+    echo "SSH Key already exists. Skipping setup."
 fi
-echo "################################################################################"
 
+echo "Done. Your new SSH public key is:"
+cat ~/.ssh/id_ed25519.pub
 
-echo "Create default gems file for asdf..."
-# Create file for asdf to install default gems
-FILE=~/.default-gems
-touch $FILE
+# 5. Add SSH key to GitHub
+read -p "Enter your GitHub username: " github_user
+read -p "Enter your GitHub password or Personal Access Token: " -s github_pass
+echo -e "\n"
+ssh_key=$(cat ~/.ssh/id_ed25519.pub | awk '{print $2}')
+key_exists=$(curl -u "$github_user:$githib_pass" https://api.github.com/user/keys | jq '.message')
+if [ "$key_exists" = "Not Found" ]; then
+    curl -u "$github_user:$github_pass" https://api.github.com/user/keys -d "{\"title\": \"`hostname`\", \"key\": \"$ssh_key\"}"
+else
+    echo "SSH Key already added to the GitHub account. Skipping."
+fi
 
-cat > $FILE << 'EOF'
-bundler
-rails
-docker-sync
-gem-release
-EOF
+# 6. Configure Git
+git config --global user.name "Mike Heft"
+git config --global user.email $EMAIL
 
-# TODO: Add default gems if/when working more with node
-# FILE=~/.default-npm-packages
-# touch $FILE
-# cat > $FILE <<'EOF'
-# EOF
+# 7. Install Oh My Zsh
+echo "Installing Oh My Zsh..."
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
-echo "Create default packages for asdf-nodejs..."
-# Create file for asdf to install default packages
+# 8. Install asdf
+echo "Installing asdf..."
+asdf_version=$(curl --silent "https://api.github.com/repos/asdf-vm/asdf/releases/latest" \
+| grep '"tag_name":' \
+| sed -E 's/.*"([^"]+)".*/\1/')
+git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch $asdf_version
+echo -e '\n. $HOME/.asdf/asdf.sh' >> ~/.zshrc
+echo -e '\n. $HOME/.asdf/completions/asdf.bash' >> ~/.zshrc
+source ~/.zshrc
 
-echo "Installing asdf plugins..."
-# Install asdf plugins
-# Ruby
-echo "Installing Ruby plugin..."
-asdf plugin add ruby https://github.com/asdf-vm/asdf-ruby.git
-# Node
-echo "Installing Nodejs plugin..."
-asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git
-# Import the Node.js release team's OpenPGP keys to main keyring:
-bash -c '${ASDF_DATA_DIR:=$HOME/.asdf}/plugins/nodejs/bin/import-release-team-keyring'
-# Yarn
-echo "Installing Yarn plugin..."
-asdf plugin-add yarn
-# Erlang
-echo "Installing Erlang plugin..."
-export KERL_CONFIGURE_OPTIONS="--disable-debug --without-javac"
-asdf plugin add erlang https://github.com/asdf-vm/asdf-erlang.git
-# Elixir
-echo "Installing Elixir plugin..."
-asdf plugin-add elixir https://github.com/asdf-vm/asdf-elixir.git
-# Java
-echo "Installing Java plugin..."
-asdf plugin-add java https://github.com/halcyon/asdf-java.git
-# Maven
-echo "Installing Maven plugin..."
-asdf plugin-add maven
-# Gradle
-echo "Intalling Gradel plugin..."
-asdf plugin-add gradle https://github.com/rfrancis/asdf-gradle.git
-# echo "Installing AWS CLI plugin..."
-# asdf plugin add https://github.com/MetricMike/asdf-awscli.git
-# echo "Installing Elasticsearch..."
-# asdf plugin-add elasticsearch https://github.com/asdf-community/asdf-elasticsearch.git
-# Terraform
-# asdf plugin-add boundary https://github.com/asdf-community/asdf-hashicorp.git
-# asdf plugin-add consul https://github.com/asdf-community/asdf-hashicorp.git
-# asdf plugin-add levant https://github.com/asdf-community/asdf-hashicorp.git
-# asdf plugin-add nomad https://github.com/asdf-community/asdf-hashicorp.git
-# asdf plugin-add packer https://github.com/asdf-community/asdf-hashicorp.git
-# asdf plugin-add sentinel https://github.com/asdf-community/asdf-hashicorp.git
-# asdf plugin-add serf https://github.com/asdf-community/asdf-hashicorp.git
-# asdf plugin-add terraform https://github.com/asdf-community/asdf-hashicorp.git
-# asdf plugin-add terraform-ls https://github.com/asdf-community/asdf-hashicorp.git
-# asdf plugin-add tfc-agent https://github.com/asdf-community/asdf-hashicorp.git
-# asdf plugin-add vault https://github.com/asdf-community/asdf-hashicorp.git
-# asdf plugin-add waypoint https://github.com/asdf-community/asdf-hashicorp.git
-
-echo "Done installing asdf plugins, don't forget to add the versions you need
-via asdf install plugin name <version>...."
-
-echo 'Installing apps...'
-
-CASKS=(
-    iterm2
-    slack
-    fork
-    google-chrome
-    sublime-text
-    rectangle
-    docker
-    firefox
+# 9. Add plugins to asdf
+asdf_plugins=(
+  ruby
+  nodejs
+  yarn
+  erlang
+  java
 )
-
-brew install --cask ${CASKS[@]}
-
-brew cleanup
-
-echo "Changing system defaults..."
-#"Setting the icon size of Dock items to 36 pixels for optimal size/screen-realestate"
-defaults write com.apple.dock tilesize -int 36
-#"Setting Dock to auto-hide and removing the auto-hiding delay"
-defaults write com.apple.dock autohide -bool true
-defaults write com.apple.dock autohide-delay -float 0
-defaults write com.apple.dock autohide-time-modifier -float 0
-defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool true
-#"Setting screenshots location to ~/Desktop"
-defaults write com.apple.screencapture location -string "$HOME/Desktop"
-echo "Done. Note that some of these changes require a logout/restart to take effect."
-echo "Don'forget to install Postgres.app"
+bash ~/.asdf/plugins/nodejs/bin/import-release-team-keyring
+echo "Installing asdf plugins..."
+for plugin in "${asdf_plugins[@]}"; do
+  echo "Installing $plugin..."
+  asdf plugin-add "$plugin"
+done
