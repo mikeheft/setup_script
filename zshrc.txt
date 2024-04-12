@@ -98,6 +98,7 @@ source $ZSH/oh-my-zsh.sh
 
 # GIT Stuff
 alias ga="git add"
+alias gc="git commit"
 alias g="git"
 alias got="git"
 alias get="git"
