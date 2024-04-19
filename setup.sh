@@ -50,6 +50,7 @@ apps=(
   helm
   minikube
   docker-compose
+  maven
 )
 
 casks=(
