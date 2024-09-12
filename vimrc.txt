@@ -16,6 +16,7 @@ Plug 'vim-ruby/vim-ruby'              " Ruby language support
 Plug 'neoclide/coc-rls'               " Language server protocol extension for Ruby
 Plug 'tpope/vim-endwise'              " Automatically adds 'end' in Ruby files
 Plug 'jiangmiao/auto-pairs'           " Auto-closing of brackets, quotes, etc.
+Plug 'hashivim/vim-terraform'         " Terraform syntax highlighting
 
 call plug#end()
 
@@ -94,6 +95,8 @@ nnoremap <silent> <C-j> <C-w>j  " Ctrl + j to move to the bottom pane
 nnoremap <silent> <C-k> <C-w>k  " Ctrl + k to move to the top pane
 nnoremap <silent> <C-l> <C-w>l  " Ctrl + l to move to the right pane
 
+set belloff=all
+
 " coc.nvim settings for go-to-definition and other language features
 " Usage for Go-to-Definition:
 " Hover over a symbol (e.g., method, class) in normal mode.
@@ -103,3 +106,10 @@ nnoremap <silent> <C-l> <C-w>l  " Ctrl + l to move to the right pane
 
 let g:coc_global_extensions = ['coc-json', 'coc-tsserver', 'coc-html', 'coc-css', 'coc-rls']
 
+" Auto install plugins if not installed
+if empty(glob('~/.vim/plugged/nerdtree'))
+  autocmd VimEnter * PlugInstall | source $MYVIMRC
+endif
+
+" Automatically close the plugin installation window after installation
+autocmd! User PlugInstallPost call Timer_start(0, { -> execute('qall') })
